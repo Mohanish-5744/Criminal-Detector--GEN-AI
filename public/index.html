@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Criminal Detector</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background: url('https://images.unsplash.com/photo-1709477544343-56ceb8272ceb?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D') no-repeat center center fixed;
+            background-size: cover;
+            position: relative;
+            color: white;
+            text-shadow: 1px 1px 2px black;
+        }
+
+        .form-container {
+            text-align: center;
+            background: rgba(0, 0, 0, 0.5);
+            padding: 20px;
+            border-radius: 10px;
+        }
+
+        .prompt {
+            font-size: 3em;
+            margin-bottom: 20px;
+            font-family: 'Cursive', sans-serif;
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .image-input {
+            margin-bottom: 20px;
+            padding: 10px;
+            font-size: 1em;
+        }
+
+        .submit-button {
+            padding: 10px 20px;
+            font-size: 1.2em;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+
+        .submit-button:hover {
+            background-color: #218838;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="form-container">
+        <main>
+            <h1 class="prompt">Which Criminal photos do you want to check?</h1>
+            <form id="criminal-form" enctype="multipart/form-data">
+                <label for="base-image">Select Base Image:</label>
+                <input type="file" id="base-image" name="base-image" accept="image/*" class="image-input" required>
+
+                <label for="test-image">Select Testing Image:</label>
+                <input type="file" id="test-image" name="test-image" accept="image/*" class="image-input" required>
+
+                <button type="button" id="submit-button" class="submit-button">Detect Face Matches or Not</button>
+            </form>
+        </main>
+    </div>
+
+    <script>
+        document.getElementById('submit-button').addEventListener('click', async function (event) {
+            event.preventDefault();
+
+            const baseImageInput = document.getElementById('base-image');
+            const testImageInput = document.getElementById('test-image');
+
+            const baseImageFile = baseImageInput.files[0];
+            const testImageFile = testImageInput.files[0];
+
+            if (!baseImageFile || !testImageFile) {
+                alert('Please select both base and test images.');
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('base-image', baseImageFile);
+            formData.append('test-image', testImageFile);
+
+            try {
+                const response = await fetch('http://localhost:3000/api/ai/images/v2/face-detection', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to detect faces.');
+                }
+
+                const result = await response.json();
+                alert(result.content); 
+            } catch (error) {
+                console.error('Error detecting faces:', error);
+                alert('Error detecting faces.');
+            }
+        });
+    </script>
+</body>
+
+</html>
+
+<!-- const reader = new FileReader();
+reader.onloadend = async () => {
+    const base64Image = reader.result.split(',')[1]; 
+   // console.log('base64image:',reader.result)
+    const Blob = await base64ToBlob(base64Image,"image/png")
+    try {
+    //     const response = await fetch('https://api.worqhat.com/api/ai/images/v2/image-analysis', {
+    //         method: "POST",
+    //         mode: "cors",
+    //         headers: {
+               
+    //             'Authorization': 'Bearer sk-b48c1b8d21744d309b64fcbb45f78d4e',
+    //             'Content-Type': 'application/json'
+
+                
+    //         },
+    //         body: JSON.stringify({ images: [base64Image],question:'Tell me Recipe by referring image' }) 
+    //     });
+
+        // if (!response.ok) {
+        //     throw new Error('Error generating recipe');
+        // }
+        const myHeaders = new Headers();
+//myHeaders.append("Content-Type", "multipart/form-data");
+
+
+myHeaders.append("Accept", "application/json");
+myHeaders.append("Authorization", "Bearer sk-b48c1b8d21744d309b64fcbb45f78d4e");
+
+const formdata = new FormData();
+formdata.append("images", Blob);
+formdata.append("output_type", "text");
+formdata.append("question", "Tell me Recipe by referring image");
+
+const requestOptions = {
+method: "POST",
+headers: myHeaders,
+body: formdata,
+redirect: "follow"
+};
+
+
+fetch("https://api.worqhat.com/api/ai/images/v2/image-analysis", requestOptions)
+.then((response) => response.json())
+.then((result) => {
+const recipe = result.content;
+window.location.href = `result.html?recipe=${encodeURIComponent(recipe)}`;
+})
+
+.catch((error) => console.error(error));
+        
+        // const recipe = await response.text();
+        // alert(recipe);
+    } catch (error) {
+        console.error('Error generating recipe:', error);
+        alert('Error generating recipe');
+    }
+};
+reader.readAsDataURL(file);
+});
+</script>
+</body>
+</html> -->
